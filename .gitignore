@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Credenciales y variables privadas
+.env
+.env.*
+*.pem
+*.key
+
+# VS Code
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Modelos, videos y resultados pesados
+*.pt
+*.pth
+*.onnx
+*.mp4
+*.avi
+*.mov
+*.mkv
+runs/
+outputs/
+temp/
+
+# Comprimidos
+*.zip
+*.rar
+*.7z
