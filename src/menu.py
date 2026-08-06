@@ -3,7 +3,9 @@ from src.project_manager import ProjectManager
 
 
 class Menu:
-    """Administra el menú principal de la aplicación."""
+    """
+    Administra el menú principal de la aplicación.
+    """
 
     def __init__(self) -> None:
         self.project_manager = ProjectManager()
@@ -11,6 +13,7 @@ class Menu:
     def iniciar(self) -> None:
         while True:
             self._mostrar_menu()
+
             opcion = input("Seleccione una opción: ").strip()
 
             if opcion == "1":
@@ -20,7 +23,7 @@ class Menu:
                 self._consultar_estado_git()
 
             elif opcion == "3":
-                self._opcion_no_disponible("Generar README")
+                self._agregar_cambios()
 
             elif opcion == "4":
                 self._opcion_no_disponible("Analizar proyecto")
@@ -45,7 +48,7 @@ class Menu:
         print("=" * 60)
         print("1. Crear proyecto")
         print("2. Consultar estado Git")
-        print("3. Generar README")
+        print("3. Agregar cambios (git add .)")
         print("4. Analizar proyecto")
         print("5. Revisar seguridad")
         print("6. Configuración")
@@ -69,7 +72,29 @@ class Menu:
                 print("\nEstado del repositorio:\n")
                 print(resultado.output)
             else:
-                print("\nNo fue posible consultar el estado de Git.")
+                print("\nNo fue posible consultar el estado del repositorio.")
+                print(resultado.error)
+
+        except (FileNotFoundError, NotADirectoryError) as error:
+            print(f"\nError: {error}")
+
+    def _agregar_cambios(self) -> None:
+        ruta = input("\nRuta del proyecto: ").strip()
+
+        try:
+            proyecto = self.project_manager.load_project(ruta)
+
+            if not proyecto.is_git_repository:
+                print("\nLa carpeta seleccionada no es un repositorio Git.")
+                return
+
+            git_manager = GitManager(proyecto)
+            resultado = git_manager.add_all()
+
+            if resultado.success:
+                print("\n✅ Cambios agregados correctamente al área de preparación (git add .).")
+            else:
+                print("\n❌ No fue posible agregar los cambios.")
                 print(resultado.error)
 
         except (FileNotFoundError, NotADirectoryError) as error:
@@ -77,4 +102,4 @@ class Menu:
 
     @staticmethod
     def _opcion_no_disponible(nombre: str) -> None:
-        print(f"\nLa opción '{nombre}' estará disponible próximamente.")
+        print(f"\nLa opción '{nombre}' estará disponible en un próximo sprint.")
