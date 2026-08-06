@@ -1,39 +1,138 @@
 # GitHub Portfolio Assistant
 
-Herramienta en Python para revisar cambios, crear commits ordenados y publicar
-proyectos existentes en GitHub desde Visual Studio Code.
+Aplicación en Python para automatizar la organización, documentación y publicación de proyectos personales en GitHub.
 
-## Requisitos
+El objetivo del proyecto es reducir el tiempo dedicado a tareas repetitivas como crear repositorios, revisar archivos, generar documentación, preparar commits y publicar cambios.
 
-- Python 3.10 o superior
+## Estado del proyecto
+
+En desarrollo.
+
+Versión actual: `0.1`
+
+## Funcionalidades actuales
+
+- Menú principal en consola.
+- Arquitectura modular.
+- Integración inicial con Git y GitHub CLI.
+- Validación básica de archivos sensibles.
+- Publicación de cambios mediante commits y push.
+- Documentación técnica del proyecto.
+
+## Funcionalidades planificadas
+
+- Crear repositorios automáticamente.
+- Analizar tecnologías utilizadas en cada proyecto.
+- Generar archivos `README.md`.
+- Crear mensajes de commit organizados.
+- Detectar archivos pesados y credenciales.
+- Publicar proyectos nuevos y existentes.
+- Generar una interfaz gráfica.
+- Integrar herramientas de inteligencia artificial.
+- Actualizar automáticamente un portafolio web.
+
+## Tecnologías
+
+- Python 3.10
 - Git
+- GitHub
 - GitHub CLI
-- Una sesión iniciada con `gh auth login`
+- Visual Studio Code
 
-## Primera versión
+## Estructura del proyecto
 
-Esta versión funciona con proyectos que:
+```text
+github-portfolio-assistant/
+│
+├── app.py
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── src/
+│   ├── __init__.py
+│   ├── menu.py
+│   ├── git_manager.py
+│   ├── github_manager.py
+│   ├── project_analyzer.py
+│   ├── security_checker.py
+│   ├── readme_generator.py
+│   ├── commit_generator.py
+│   ├── config.py
+│   └── utils.py
+│
+├── config/
+├── templates/
+├── assets/
+├── docs/
+└── tests/
+```
 
-1. Ya son repositorios Git.
-2. Ya tienen un remoto llamado `origin`.
-3. Ya están conectados con GitHub.
+## Instalación
+
+Clona el repositorio:
+
+```bash
+git clone https://github.com/carloscifuentesingsoft1560-cyber/github-portfolio-assistant.git
+```
+
+Entra en la carpeta:
+
+```bash
+cd github-portfolio-assistant
+```
+
+Verifica Python:
+
+```bash
+python --version
+```
 
 ## Ejecución
 
+Ejecuta:
+
 ```bash
-python asistente_github.py
+python app.py
 ```
 
-El programa solicitará la ruta completa de la carpeta que deseas publicar.
+## Uso actual
 
-## Seguridad
+Al iniciar la aplicación aparece el menú:
 
-Antes de publicar, realiza una revisión básica de:
+```text
+1. Crear proyecto
+2. Publicar proyecto existente
+3. Generar README
+4. Analizar proyecto
+5. Revisar seguridad
+6. Configuración
+7. Salir
+```
 
-- archivos `.env`;
-- claves privadas;
-- posibles tokens de GitHub;
-- archivos mayores de 45 MB;
-- videos, modelos y comprimidos.
+Por ahora, las opciones están preparadas para implementarse progresivamente durante los siguientes sprints.
 
-Esta revisión ayuda, pero no reemplaza una inspección manual de los cambios.
+## Documentación
+
+La documentación técnica está disponible en:
+
+- `docs/ARCHITECTURE.md`
+- `docs/ROADMAP.md`
+- `docs/CHANGELOG.md`
+
+## Roadmap resumido
+
+- `v0.1`: arquitectura y menú principal.
+- `v0.2`: gestión de operaciones Git.
+- `v0.3`: integración con GitHub.
+- `v0.4`: generación automática de README.
+- `v0.5`: análisis de proyectos.
+- `v0.6`: revisión de seguridad.
+- `v0.8`: interfaz gráfica.
+- `v1.0`: primera versión estable.
+
+## Autor
+
+**Carlos Eduardo Cifuentes Sanabria**
+
+Estudiante de Ingeniería de Software con interés en automatización, Machine Learning, inteligencia artificial y visión por computador.
