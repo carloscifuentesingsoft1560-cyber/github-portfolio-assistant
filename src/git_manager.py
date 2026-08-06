@@ -1,6 +1,4 @@
-from pathlib import Path
-import subprocess
-
+from src.command_runner import CommandRunner, CommandResult
 from src.project_manager import Project
 
 
@@ -11,17 +9,30 @@ class GitManager:
 
     def __init__(self, project: Project):
         self.project = project
+        self.runner = CommandRunner()
 
-    def status(self) -> str:
+    def execute(self, arguments: list[str]) -> CommandResult:
         """
-        Devuelve el resultado de git status.
+        Ejecuta cualquier comando Git.
         """
 
-        resultado = subprocess.run(
-            ["git", "status"],
-            cwd=self.project.path,
-            capture_output=True,
-            text=True
+        command = ["git"] + arguments
+
+        return self.runner.run(
+            command,
+            working_directory=self.project.path
         )
 
-        return resultado.stdout
+    def status(self) -> CommandResult:
+        return self.execute(["status"])
+
+    def add_all(self) -> CommandResult:
+        return self.execute(["add", "."])
+
+    def commit(self, message: str) -> CommandResult:
+        return self.execute(
+            ["commit", "-m", message]
+        )
+
+    def push(self) -> CommandResult:
+        return self.execute(["push"])
