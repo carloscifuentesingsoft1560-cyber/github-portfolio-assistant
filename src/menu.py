@@ -1,5 +1,6 @@
 from src.git_manager import GitManager
 from src.github_manager import GitHubManager
+from src.project_analyzer import ProjectAnalyzer
 from src.project_manager import ProjectManager
 
 
@@ -27,7 +28,7 @@ class Menu:
                 self._agregar_cambios()
 
             elif opcion == "4":
-                self._opcion_no_disponible("Analizar proyecto")
+                self._analizar_proyecto()
 
             elif opcion == "5":
                 self._opcion_no_disponible("Revisar seguridad")
@@ -60,6 +61,10 @@ class Menu:
         print("=" * 60)
 
     def _publicar_proyecto_existente(self) -> None:
+        """
+        Publica un proyecto existente en GitHub.
+        """
+
         ruta = input(
             "\nRuta del proyecto que desea publicar: "
         ).strip()
@@ -77,6 +82,10 @@ class Menu:
             git = GitManager(proyecto)
             github = GitHubManager(proyecto)
 
+            # --------------------------------------------------
+            # Comprobar autenticación en GitHub
+            # --------------------------------------------------
+
             print("\n--- Comprobar GitHub ---")
 
             auth_result = github.auth_status()
@@ -93,12 +102,17 @@ class Menu:
 
             print("GitHub CLI autenticado correctamente.")
 
+            # --------------------------------------------------
+            # Consultar estado del proyecto
+            # --------------------------------------------------
+
             print("\n--- Estado del proyecto ---")
 
             status_result = git.status()
 
             if status_result.success:
                 print(status_result.output)
+
             else:
                 print(
                     "\nNo fue posible consultar "
@@ -109,6 +123,10 @@ class Menu:
                     print(status_result.error)
 
                 return
+
+            # --------------------------------------------------
+            # Revisar origin
+            # --------------------------------------------------
 
             print("\n--- Revisar remoto origin ---")
 
@@ -186,6 +204,10 @@ class Menu:
                 if create_result.output:
                     print(create_result.output)
 
+            # --------------------------------------------------
+            # Agregar cambios
+            # --------------------------------------------------
+
             print("\n--- Preparar cambios ---")
 
             add_result = git.add_all()
@@ -201,9 +223,11 @@ class Menu:
 
                 return
 
-            print(
-                "Cambios agregados correctamente."
-            )
+            print("Cambios agregados correctamente.")
+
+            # --------------------------------------------------
+            # Crear commit
+            # --------------------------------------------------
 
             mensaje = input(
                 "\nMensaje del commit: "
@@ -224,6 +248,7 @@ class Menu:
                 error = (
                     commit_result.error
                     or commit_result.output
+                    or ""
                 )
 
                 if (
@@ -235,6 +260,7 @@ class Menu:
                         "No hay cambios nuevos "
                         "para crear un commit."
                     )
+
                 else:
                     print(
                         "\nNo fue posible "
@@ -245,13 +271,16 @@ class Menu:
                         print(error)
 
                     return
+
             else:
-                print(
-                    "Commit creado correctamente."
-                )
+                print("Commit creado correctamente.")
 
                 if commit_result.output:
                     print(commit_result.output)
+
+            # --------------------------------------------------
+            # Push
+            # --------------------------------------------------
 
             print("\n--- Publicar en GitHub ---")
 
@@ -282,6 +311,10 @@ class Menu:
             print(f"\nError: {error}")
 
     def _consultar_estado_git(self) -> None:
+        """
+        Consulta el estado Git de un proyecto.
+        """
+
         ruta = input("\nRuta del proyecto: ").strip()
 
         try:
@@ -297,11 +330,13 @@ class Menu:
                 return
 
             git_manager = GitManager(proyecto)
+
             resultado = git_manager.status()
 
             if resultado.success:
                 print("\nEstado del repositorio:\n")
                 print(resultado.output)
+
             else:
                 print(
                     "\nNo fue posible consultar "
@@ -318,6 +353,10 @@ class Menu:
             print(f"\nError: {error}")
 
     def _agregar_cambios(self) -> None:
+        """
+        Ejecuta git add . sobre el proyecto.
+        """
+
         ruta = input("\nRuta del proyecto: ").strip()
 
         try:
@@ -333,6 +372,7 @@ class Menu:
                 return
 
             git_manager = GitManager(proyecto)
+
             resultado = git_manager.add_all()
 
             if resultado.success:
@@ -340,6 +380,7 @@ class Menu:
                     "\nCambios agregados correctamente "
                     "al área de preparación."
                 )
+
             else:
                 print(
                     "\nNo fue posible agregar "
@@ -355,10 +396,98 @@ class Menu:
         ) as error:
             print(f"\nError: {error}")
 
+    def _analizar_proyecto(self) -> None:
+        """
+        Analiza la estructura general de un proyecto.
+        """
+
+        ruta = input("\nRuta del proyecto: ").strip()
+
+        try:
+            proyecto = self.project_manager.load_project(
+                ruta
+            )
+
+            analyzer = ProjectAnalyzer(proyecto)
+
+            resultado = analyzer.analyze()
+          
+            print("\n" + "=" * 60)
+            print("              ANÁLISIS DEL PROYECTO")
+            print("=" * 60)
+
+            print(
+                f"Nombre: {resultado['name']}"
+            )
+
+            print(
+                f"Ruta: {resultado['path']}"
+            )
+
+            print(
+                "Repositorio Git:",
+                "Sí"
+                if resultado["is_git_repository"]
+                else "No",
+            )
+
+            print(
+                "README:",
+                "Sí"
+                if resultado["has_readme"]
+                else "No",
+            )
+
+            print(
+                ".gitignore:",
+                "Sí"
+                if resultado["has_gitignore"]
+                else "No",
+            )
+
+            print(
+                "requirements.txt:",
+                "Sí"
+                if resultado["has_requirements"]
+                else "No",
+            )
+
+            print(
+                f"Archivos: "
+                f"{resultado['file_count']}"
+            )
+
+            print(
+                f"Carpetas: "
+                f"{resultado['directory_count']}"
+            )
+
+            tecnologias = resultado["technologies"]
+
+            print(
+                "Tecnologías:",
+                ", ".join(tecnologias)
+                if tecnologias
+                else "No detectadas",
+            )
+
+            print("=" * 60)
+
+        except (
+            FileNotFoundError,
+            NotADirectoryError,
+        ) as error:
+            print(f"\nError: {error}")
+
     @staticmethod
     def _opcion_no_disponible(
         nombre: str,
     ) -> None:
+        """
+        Muestra un mensaje para funciones
+        todavía no implementadas.
+        """
+
         print(
             f"\nLa opción '{nombre}' "
             "estará disponible próximamente."
