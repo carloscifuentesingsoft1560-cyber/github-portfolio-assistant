@@ -28,13 +28,15 @@ class CommandRunner:
                 cwd=working_directory,
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 check=False,
             )
 
             return CommandResult(
                 success=result.returncode == 0,
-                output=result.stdout.strip(),
-                error=result.stderr.strip(),
+                output=(result.stdout or "").strip(),
+                error=(result.stderr or "").strip(),
                 return_code=result.returncode,
             )
 

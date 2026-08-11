@@ -2,37 +2,32 @@ from src.command_runner import CommandRunner, CommandResult
 from src.project_manager import Project
 
 
-class GitManager:
+class GitHubManager:
     """
-    Gestiona operaciones básicas de Git.
+    Gestiona operaciones relacionadas con GitHub mediante GitHub CLI.
     """
 
     def __init__(self, project: Project):
         self.project = project
         self.runner = CommandRunner()
 
-    def execute(self, arguments: list[str]) -> CommandResult:
+    def auth_status(self) -> CommandResult:
         """
-        Ejecuta cualquier comando Git.
+        Comprueba si GitHub CLI está autenticado.
         """
-
-        command = ["git"] + arguments
-
         return self.runner.run(
-            command,
-            working_directory=self.project.path
+            ["gh", "auth", "status"],
+            working_directory=self.project.path,
         )
 
-    def status(self) -> CommandResult:
-        return self.execute(["status"])
+    def repo_exists(self, repository: str) -> CommandResult:
+        """
+        Comprueba si un repositorio existe en GitHub.
 
-    def add_all(self) -> CommandResult:
-        return self.execute(["add", "."])
-
-    def commit(self, message: str) -> CommandResult:
-        return self.execute(
-            ["commit", "-m", message]
+        repository debe utilizar el formato:
+        usuario/repositorio
+        """
+        return self.runner.run(
+            ["gh", "repo", "view", repository],
+            working_directory=self.project.path,
         )
-
-    def push(self) -> CommandResult:
-        return self.execute(["push"])
