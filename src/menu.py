@@ -2,6 +2,7 @@ from src.git_manager import GitManager
 from src.github_manager import GitHubManager
 from src.project_analyzer import ProjectAnalyzer
 from src.project_manager import ProjectManager
+from src.readme_generator import ReadmeGenerator
 
 
 class Menu:
@@ -31,19 +32,22 @@ class Menu:
                 self._analizar_proyecto()
 
             elif opcion == "5":
-                self._opcion_no_disponible("Revisar seguridad")
+                self._generar_readme()
 
             elif opcion == "6":
-                self._opcion_no_disponible("Configuración")
+                self._opcion_no_disponible("Revisar seguridad")
 
             elif opcion == "7":
+                self._opcion_no_disponible("Configuración")
+
+            elif opcion == "8":
                 print("\nHasta luego.")
                 break
 
             else:
                 print(
                     "\nOpción no válida. "
-                    "Seleccione un número entre 1 y 7."
+                    "Seleccione un número entre 1 y 8."
                 )
 
     @staticmethod
@@ -55,9 +59,10 @@ class Menu:
         print("2. Consultar estado Git")
         print("3. Agregar cambios (git add .)")
         print("4. Analizar proyecto")
-        print("5. Revisar seguridad")
-        print("6. Configuración")
-        print("7. Salir")
+        print("5. Generar README")
+        print("6. Revisar seguridad")
+        print("7. Configuración")
+        print("8. Salir")
         print("=" * 60)
 
     def _publicar_proyecto_existente(self) -> None:
@@ -477,6 +482,79 @@ class Menu:
             FileNotFoundError,
             NotADirectoryError,
         ) as error:
+            print(f"\nError: {error}")
+    def _generar_readme(self) -> None:
+        """
+        Genera un README.md para un proyecto.
+        """
+
+        ruta = input(
+            "\nRuta del proyecto: "
+        ).strip()
+
+        try:
+            proyecto = self.project_manager.load_project(ruta)
+
+            generator = ReadmeGenerator(proyecto)
+
+            print("\n" + "=" * 60)
+            print("              VISTA PREVIA DEL README")
+            print("=" * 60)
+
+            contenido = generator.generate_content()
+
+            print()
+            print(contenido)
+            print("=" * 60)
+
+            readme_path = proyecto.path / "README.md"
+
+            if readme_path.exists():
+                print(
+                    "\nEl proyecto ya contiene un README.md."
+                )
+
+                respuesta = input(
+                    "¿Desea reemplazarlo? (s/n): "
+                ).strip().lower()
+
+                if respuesta != "s":
+                    print(
+                        "\nREADME conservado. "
+                        "No se realizó ningún cambio."
+                    )
+                    return
+
+                generator.write(
+                    overwrite=True
+                )
+
+                print(
+                    "\nREADME.md reemplazado correctamente."
+                )
+
+            else:
+                respuesta = input(
+                    "\n¿Desea crear este README.md? (s/n): "
+                ).strip().lower()
+
+                if respuesta != "s":
+                    print("\nOperación cancelada.")
+                    return
+
+                generator.write()
+
+                print(
+                    "\nREADME.md creado correctamente."
+                )
+
+        except (
+            FileNotFoundError,
+            NotADirectoryError,
+        ) as error:
+            print(f"\nError: {error}")
+
+        except FileExistsError as error:
             print(f"\nError: {error}")
 
     @staticmethod
