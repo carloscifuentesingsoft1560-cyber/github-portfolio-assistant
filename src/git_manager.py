@@ -2,32 +2,56 @@ from src.command_runner import CommandRunner, CommandResult
 from src.project_manager import Project
 
 
-class GitHubManager:
+class GitManager:
     """
-    Gestiona operaciones relacionadas con GitHub mediante GitHub CLI.
+    Gestiona operaciones básicas de Git.
     """
 
     def __init__(self, project: Project):
         self.project = project
         self.runner = CommandRunner()
 
-    def auth_status(self) -> CommandResult:
+    def execute(self, arguments: list[str]) -> CommandResult:
         """
-        Comprueba si GitHub CLI está autenticado.
+        Ejecuta un comando Git dentro del proyecto.
         """
         return self.runner.run(
-            ["gh", "auth", "status"],
+            ["git"] + arguments,
             working_directory=self.project.path,
         )
 
-    def repo_exists(self, repository: str) -> CommandResult:
+    def status(self) -> CommandResult:
         """
-        Comprueba si un repositorio existe en GitHub.
+        Consulta el estado del repositorio.
+        """
+        return self.execute(["status"])
 
-        repository debe utilizar el formato:
-        usuario/repositorio
+    def add_all(self) -> CommandResult:
         """
-        return self.runner.run(
-            ["gh", "repo", "view", repository],
-            working_directory=self.project.path,
+        Agrega todos los cambios al área de preparación.
+        """
+        return self.execute(["add", "."])
+
+    def commit(self, message: str) -> CommandResult:
+        """
+        Crea un commit con el mensaje indicado.
+        """
+        return self.execute(
+            ["commit", "-m", message]
+        )
+
+    def push(self) -> CommandResult:
+        """
+        Publica la rama actual en origin y configura upstream.
+        """
+        return self.execute(
+            ["push", "-u", "origin", "HEAD"]
+        )
+
+    def get_remote_origin(self) -> CommandResult:
+        """
+        Devuelve la URL configurada para el remoto origin.
+        """
+        return self.execute(
+            ["remote", "get-url", "origin"]
         )
