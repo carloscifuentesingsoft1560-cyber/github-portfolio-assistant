@@ -5,6 +5,7 @@ from src.project_manager import ProjectManager
 from src.readme_generator import ReadmeGenerator
 from src.security_checker import SecurityChecker
 from src.commit_generator import CommitGenerator
+from src.config import AppConfig
 
 class Menu:
     """
@@ -13,6 +14,7 @@ class Menu:
 
     def __init__(self) -> None:
         self.project_manager = ProjectManager()
+        self.config = AppConfig()
 
     def iniciar(self) -> None:
         while True:
@@ -39,7 +41,7 @@ class Menu:
                 self._revisar_seguridad()
 
             elif opcion == "7":
-                self._opcion_no_disponible("Configuración")
+                self._configuracion()
 
             elif opcion == "8":
                 print("\nHasta luego.")
@@ -729,6 +731,137 @@ class Menu:
             NotADirectoryError,
         ) as error:
             print(f"\nError: {error}")
+
+    def _configuracion(self) -> None:
+        """
+        Permite consultar y modificar la configuración
+        general de la aplicación.
+        """
+
+        while True:
+            settings = self.config.load()
+
+            print("\n" + "=" * 60)
+            print("                 CONFIGURACIÓN")
+            print("=" * 60)
+
+            print(
+                f"1. Autor por defecto: "
+                f"{settings['author'] or 'No definido'}"
+            )
+
+            print(
+                f"2. Visibilidad por defecto: "
+                f"{settings['default_visibility']}"
+            )
+
+            print(
+                f"3. Prefijo de commit por defecto: "
+                f"{settings['default_commit_prefix']}"
+            )
+
+            print(
+                f"4. Confirmar antes de push: "
+                f"{'Sí' if settings['confirm_before_push'] else 'No'}"
+            )
+
+            print("5. Volver")
+            print("=" * 60)
+
+            opcion = input(
+                "Seleccione una opción: "
+            ).strip()
+
+            if opcion == "1":
+                author = input(
+                    "\nNuevo autor: "
+                ).strip()
+
+                self.config.update(
+                    "author",
+                    author,
+                )
+
+                print(
+                    "\nAutor actualizado correctamente."
+                )
+
+            elif opcion == "2":
+                visibility = input(
+                    "\nVisibilidad "
+                    "(public/private): "
+                ).strip().lower()
+
+                if visibility not in {
+                    "public",
+                    "private",
+                }:
+                    print(
+                        "\nValor no válido."
+                    )
+                    continue
+
+                self.config.update(
+                    "default_visibility",
+                    visibility,
+                )
+
+                print(
+                    "\nVisibilidad actualizada."
+                )
+
+            elif opcion == "3":
+                prefix = input(
+                    "\nPrefijo de commit "
+                    "(feat/fix/docs/test/chore): "
+                ).strip().lower()
+
+                valid_prefixes = {
+                    "feat",
+                    "fix",
+                    "docs",
+                    "test",
+                    "chore",
+                }
+
+                if prefix not in valid_prefixes:
+                    print(
+                        "\nPrefijo no válido."
+                    )
+                    continue
+
+                self.config.update(
+                    "default_commit_prefix",
+                    prefix,
+                )
+
+                print(
+                    "\nPrefijo actualizado."
+                )
+
+            elif opcion == "4":
+                current_value = settings[
+                    "confirm_before_push"
+                ]
+
+                self.config.update(
+                    "confirm_before_push",
+                    not current_value,
+                )
+
+                print(
+                    "\nConfirmación antes de push "
+                    "actualizada."
+                )
+
+            elif opcion == "5":
+                break
+
+            else:
+                print(
+                    "\nOpción no válida. "
+                    "Seleccione un número entre 1 y 5."
+                )
 
     @staticmethod
     def _opcion_no_disponible(

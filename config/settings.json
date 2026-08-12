@@ -1,0 +1,6 @@
+{
+  "author": "Carlos Cifuentes",
+  "default_visibility": "public",
+  "default_commit_prefix": "feat",
+  "confirm_before_push": true
+}
