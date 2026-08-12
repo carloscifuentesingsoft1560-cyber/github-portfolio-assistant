@@ -4,7 +4,7 @@ from src.project_analyzer import ProjectAnalyzer
 from src.project_manager import ProjectManager
 from src.readme_generator import ReadmeGenerator
 from src.security_checker import SecurityChecker
-
+from src.commit_generator import CommitGenerator
 
 class Menu:
     """
@@ -281,45 +281,86 @@ class Menu:
             print("Cambios agregados correctamente.")
 
             # --------------------------------------------------
-            # Crear commit
+            # Comprobar si existen cambios para commit
             # --------------------------------------------------
 
-            mensaje = input(
-                "\nMensaje del commit: "
-            ).strip()
+            pending_result = git.execute(
+                ["status", "--short"]
+            )
 
-            if not mensaje:
+            if not pending_result.success:
                 print(
-                    "\nEl mensaje del commit "
-                    "no puede estar vacío."
+                    "\nNo fue posible comprobar "
+                    "los cambios pendientes."
                 )
+
+                if pending_result.error:
+                    print(pending_result.error)
+
                 return
 
-            print("\n--- Crear commit ---")
-
-            commit_result = git.commit(mensaje)
-
-            if not commit_result.success:
-                error = (
-                    commit_result.error
-                    or commit_result.output
-                    or ""
+            if not pending_result.output.strip():
+                print(
+                    "\nNo hay cambios nuevos "
+                    "para crear un commit."
                 )
 
-                if (
-                    "nothing to commit" in error.lower()
-                    or "nothing added to commit"
-                    in error.lower()
-                ):
-                    print(
-                        "No hay cambios nuevos "
-                        "para crear un commit."
+                print(
+                    "Se continuará con la comprobación "
+                    "de publicación en GitHub."
+                )
+
+            else:
+                # ----------------------------------------------
+                # Generar mensaje de commit sugerido
+                # ----------------------------------------------
+
+                commit_generator = CommitGenerator(
+                    proyecto
+                )
+
+                mensaje_sugerido = (
+                    commit_generator.generate()
+                )
+
+                print(
+                    "\nMensaje de commit sugerido:"
+                )
+                print(mensaje_sugerido)
+
+                mensaje = input(
+                    "\nPresione Enter para usarlo "
+                    "o escriba otro mensaje: "
+                ).strip()
+
+                if not mensaje:
+                    mensaje = mensaje_sugerido
+
+                print(
+                    f"\nMensaje seleccionado: "
+                    f"{mensaje}"
+                )
+
+                # ----------------------------------------------
+                # Crear commit
+                # ----------------------------------------------
+
+                print("\n--- Crear commit ---")
+
+                commit_result = git.commit(
+                    mensaje
+                )
+
+                if not commit_result.success:
+                    error = (
+                        commit_result.error
+                        or commit_result.output
+                        or ""
                     )
 
-                else:
                     print(
-                        "\nNo fue posible "
-                        "crear el commit."
+                        "\nNo fue posible crear "
+                        "el commit."
                     )
 
                     if error:
@@ -327,12 +368,12 @@ class Menu:
 
                     return
 
-            else:
-                print("Commit creado correctamente.")
+                print(
+                    "Commit creado correctamente."
+                )
 
                 if commit_result.output:
                     print(commit_result.output)
-
             # --------------------------------------------------
             # Push
             # --------------------------------------------------
