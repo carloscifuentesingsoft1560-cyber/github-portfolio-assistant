@@ -209,7 +209,56 @@ class Menu:
 
                 if create_result.output:
                     print(create_result.output)
+            
+            # --------------------------------------------------
+            # Revisión de seguridad
+            # --------------------------------------------------
 
+            print("\n--- Revisión de seguridad ---")
+
+            security_checker = SecurityChecker(proyecto)
+            security_result = security_checker.check()
+
+            if security_result["safe"]:
+                print(
+                    "No se encontraron archivos "
+                    "problemáticos sin protección."
+                )
+
+            else:
+                print(
+                    "\nADVERTENCIA: se encontraron archivos "
+                    "que requieren revisión."
+                )
+
+                print("\nArchivos no protegidos:")
+
+                for item in security_result["unprotected_files"]:
+                    categorias = ", ".join(
+                        item["categories"]
+                    )
+
+                    print(
+                        f"- {item['path']} "
+                        f"[{categorias}] "
+                        f"({item['size_mb']} MB)"
+                    )
+
+                print("\nAdvertencias:")
+
+                for warning in security_result["warnings"]:
+                    print(f"- {warning}")
+
+                continuar = input(
+                    "\n¿Desea continuar con la publicación "
+                    "de todos modos? (s/n): "
+                ).strip().lower()
+
+                if continuar != "s":
+                    print(
+                        "\nPublicación cancelada por seguridad."
+                    )
+                    return
             # --------------------------------------------------
             # Agregar cambios
             # --------------------------------------------------
