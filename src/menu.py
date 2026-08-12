@@ -3,6 +3,7 @@ from src.github_manager import GitHubManager
 from src.project_analyzer import ProjectAnalyzer
 from src.project_manager import ProjectManager
 from src.readme_generator import ReadmeGenerator
+from src.security_checker import SecurityChecker
 
 
 class Menu:
@@ -35,7 +36,7 @@ class Menu:
                 self._generar_readme()
 
             elif opcion == "6":
-                self._opcion_no_disponible("Revisar seguridad")
+                self._revisar_seguridad()
 
             elif opcion == "7":
                 self._opcion_no_disponible("Configuración")
@@ -483,6 +484,7 @@ class Menu:
             NotADirectoryError,
         ) as error:
             print(f"\nError: {error}")
+
     def _generar_readme(self) -> None:
         """
         Genera un README.md para un proyecto.
@@ -555,6 +557,87 @@ class Menu:
             print(f"\nError: {error}")
 
         except FileExistsError as error:
+            print(f"\nError: {error}")
+
+    def _revisar_seguridad(self) -> None:
+        """
+        Revisa posibles riesgos antes de publicar un proyecto.
+        """
+
+        ruta = input(
+            "\nRuta del proyecto: "
+        ).strip()
+
+        try:
+            proyecto = self.project_manager.load_project(
+                ruta
+            )
+
+            checker = SecurityChecker(proyecto)
+
+            resultado = checker.check()
+
+            print("\n" + "=" * 60)
+            print("              REVISIÓN DE SEGURIDAD")
+            print("=" * 60)
+
+            print(
+                "Estado:",
+                "SEGURO"
+                if resultado["safe"]
+                else "REQUIERE REVISIÓN",
+            )
+
+            print(
+                "\n--- Archivos potencialmente problemáticos ---"
+            )
+
+            if resultado["detected_files"]:
+                for item in resultado["detected_files"]:
+                    categorias = ", ".join(
+                        item["categories"]
+                    )
+
+                    print(
+                        f"- {item['path']} "
+                        f"[{categorias}] "
+                        f"({item['size_mb']} MB)"
+                    )
+            else:
+                print("Ninguno.")
+
+            print("\n--- Protegidos por .gitignore ---")
+
+            if resultado["protected_files"]:
+                for item in resultado["protected_files"]:
+                    print(f"- {item['path']}")
+            else:
+                print("Ninguno.")
+
+            print("\n--- No protegidos ---")
+
+            if resultado["unprotected_files"]:
+                for item in resultado["unprotected_files"]:
+                    print(f"- {item['path']}")
+            else:
+                print("Ninguno.")
+
+            print("\n--- Advertencias ---")
+
+            if resultado["warnings"]:
+                for warning in resultado["warnings"]:
+                    print(f"- {warning}")
+            else:
+                print(
+                    "No se encontraron advertencias."
+                )
+
+            print("=" * 60)
+
+        except (
+            FileNotFoundError,
+            NotADirectoryError,
+        ) as error:
             print(f"\nError: {error}")
 
     @staticmethod
