@@ -118,6 +118,47 @@ class Menu:
                 else "No",
             )
 
+            # --------------------------------------------------
+            # Comprobar README
+            # --------------------------------------------------
+
+            if not analysis["has_readme"]:
+                print(
+                    "\nEl proyecto no contiene README.md."
+                )
+
+                crear_readme = input(
+                    "¿Desea generar uno automáticamente? "
+                    "(s/n): "
+                ).strip().lower()
+
+                if crear_readme == "s":
+                    readme_generator = ReadmeGenerator(
+                        proyecto
+                    )
+
+                    try:
+                        readme_path = (
+                            readme_generator.write()
+                        )
+
+                        print(
+                            "\nREADME.md generado "
+                            "correctamente:"
+                        )
+                        print(readme_path)
+
+                    except FileExistsError:
+                        print(
+                            "\nREADME.md ya existe. "
+                            "No se reemplazó."
+                        )
+
+                else:
+                    print(
+                        "\nSe continuará sin generar README."
+                    )
+
             print(
                 ".gitignore:",
                 "Sí"
