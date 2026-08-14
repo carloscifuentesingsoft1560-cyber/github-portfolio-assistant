@@ -464,6 +464,83 @@ class Menu:
                 if commit_result.output:
                     print(commit_result.output)
 
+            # --------------------------------------------------
+            # Resumen previo a publicación
+            # --------------------------------------------------
+
+            print("\n" + "=" * 60)
+            print("           RESUMEN PREVIO A PUBLICACIÓN")
+            print("=" * 60)
+
+            print(
+                f"Proyecto: {analysis['name']}"
+            )
+
+            print(
+                "Repositorio Git:",
+                "Sí"
+                if analysis["is_git_repository"]
+                else "No",
+            )
+
+            print(
+                "README:",
+                "Sí"
+                if analysis["has_readme"]
+                else "No",
+            )
+
+            print(
+                ".gitignore:",
+                "Sí"
+                if analysis["has_gitignore"]
+                else "No",
+            )
+
+            print(
+                "requirements.txt:",
+                "Sí"
+                if analysis["has_requirements"]
+                else "No",
+            )
+
+            print(
+                "Seguridad:",
+                "SEGURA"
+                if security_result["safe"]
+                else "REQUIERE REVISIÓN",
+            )
+
+            print(
+                "Origin:",
+                origin_result.output
+                if origin_result.success
+                else "No configurado",
+            )
+
+            print(
+                "Visibilidad por defecto:",
+                settings["default_visibility"],
+            )
+
+            print(
+                "Confirmación antes de push:",
+                "Sí"
+                if settings["confirm_before_push"]
+                else "No",
+            )
+
+            tecnologias = analysis["technologies"]
+
+            print(
+                "Tecnologías:",
+                ", ".join(tecnologias)
+                if tecnologias
+                else "No detectadas",
+            )
+
+            print("=" * 60)
+
             confirm_before_push = settings[
                 "confirm_before_push"
             ]
