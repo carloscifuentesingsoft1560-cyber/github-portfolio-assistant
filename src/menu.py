@@ -89,6 +89,48 @@ class Menu:
 
             git = GitManager(proyecto)
             github = GitHubManager(proyecto)
+            settings = self.config.load()
+
+            # --------------------------------------------------
+            # Análisis automático del proyecto
+            # --------------------------------------------------
+
+            print("\n--- Analizar proyecto ---")
+
+            analyzer = ProjectAnalyzer(proyecto)
+            analysis = analyzer.analyze()
+
+            print(f"Proyecto: {analysis['name']}")
+
+            technologies = analysis["technologies"]
+
+            print(
+                "Tecnologías:",
+                ", ".join(technologies)
+                if technologies
+                else "No detectadas",
+            )
+
+            print(
+                "README:",
+                "Sí"
+                if analysis["has_readme"]
+                else "No",
+            )
+
+            print(
+                ".gitignore:",
+                "Sí"
+                if analysis["has_gitignore"]
+                else "No",
+            )
+
+            print(
+                "requirements.txt:",
+                "Sí"
+                if analysis["has_requirements"]
+                else "No",
+            )
 
             # --------------------------------------------------
             # Comprobar autenticación en GitHub
@@ -171,13 +213,17 @@ class Menu:
                     )
                     return
 
+                default_visibility = settings[
+                    "default_visibility"
+                ]
+
                 visibility = input(
                     "Visibilidad (public/private) "
-                    "[public]: "
+                    f"[{default_visibility}]: "
                 ).strip().lower()
 
                 if not visibility:
-                    visibility = "public"
+                    visibility = default_visibility
 
                 confirmation = input(
                     f"\n¿Crear '{repository_name}' "
@@ -376,6 +422,24 @@ class Menu:
 
                 if commit_result.output:
                     print(commit_result.output)
+
+            confirm_before_push = settings[
+                "confirm_before_push"
+            ]
+
+            if confirm_before_push:
+                confirmar_push = input(
+                    "\n¿Desea realizar el push a GitHub? "
+                    "(s/n): "
+                ).strip().lower()
+
+                if confirmar_push != "s":
+                    print(
+                        "\nPush cancelado. "
+                        "Los cambios locales se conservan."
+                    )
+                    return
+                
             # --------------------------------------------------
             # Push
             # --------------------------------------------------
