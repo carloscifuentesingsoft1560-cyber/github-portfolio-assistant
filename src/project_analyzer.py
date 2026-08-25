@@ -9,9 +9,22 @@ class ProjectAnalyzer:
     """
     Analiza la estructura y tecnologías de un proyecto.
     """
+    IGNORED_DIRECTORIES = {
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "node_modules",
+    }
 
     def __init__(self, project: Project):
         self.project = project
+
+    def _should_ignore(self, path: Path) -> bool:
+        return any(
+            part in self.IGNORED_DIRECTORIES
+            for part in path.parts
+    )
 
     def analyze(self) -> dict:
         """
@@ -24,16 +37,15 @@ class ProjectAnalyzer:
             item
             for item in project_path.rglob("*")
             if item.is_file()
-            and ".git" not in item.parts
+            and not self._should_ignore(item)
         ]
 
         directories = [
             item
             for item in project_path.rglob("*")
             if item.is_dir()
-            and ".git" not in item.parts
+            and not self._should_ignore(item)
         ]
-
         technologies = self._detect_technologies(files)
 
         return {

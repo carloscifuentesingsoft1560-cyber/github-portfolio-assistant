@@ -50,9 +50,23 @@ class SecurityChecker:
 
     LARGE_FILE_LIMIT_MB = 50
 
+    IGNORED_DIRECTORIES = {
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "node_modules",
+    }
+
     def __init__(self, project: Project):
         self.project = project
         self.runner = CommandRunner()
+
+    def _should_ignore(self, path: Path) -> bool:
+        return any(
+            part in self.IGNORED_DIRECTORIES
+            for part in path.parts
+        )
 
     def check(self) -> dict:
         """
@@ -67,7 +81,7 @@ class SecurityChecker:
             if not file_path.is_file():
                 continue
 
-            if ".git" in file_path.parts:
+            if self._should_ignore(file_path):
                 continue
 
             relative_path = file_path.relative_to(
